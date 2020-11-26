@@ -3,55 +3,117 @@
 #include "healthy.h"
 #include <array>
 #include <vector>
+#include <functional>
+#include <cassert>
+#include <optional>
 
 enum Cardinals { NW = 0, NE, SW, SE, COUNT };
 
 struct Node {
-    static constexpr size_t MAX_POINTS { 2 };
+	static constexpr size_t MAX_POINTS{ 2 };
 
-    std::array<Node*, Cardinals::COUNT> m_children { nullptr };
-    std::vector<mt::Pt> m_data ;     
-    mt::Rect m_box { {0.f, 0.f}, {0.f, 0.f} };     
+	std::array<Node*, Cardinals::COUNT> m_children{ nullptr };
+	std::vector<mt::Pt> m_data;
+	mt::Rect m_box{ {0.f, 0.f}, {0.f, 0.f} };
 };
 
 class QuadTree {
 public:
-    QuadTree(const mt::Rect& fullArea) 
-        : m_root { new Node {} }
-        , m_size { 1 }
-    {
-        m_root->m_box = fullArea;
-    }
+	QuadTree(const mt::Rect& fullArea)
+		: m_root{ new Node {} }
+		, m_size{ 1 }
+	{
+		m_root->m_box = fullArea;
+	}
 
-    void Build(const std::vector<mt::Pt>& points) {
-        for(auto& point: points) {
-            this->Insert(point);
-        }
-    }
+	~QuadTree() {
+		this->Visit(m_root, [](Node* node) {
+			delete node;
+		});
+	}
 
-    // return number of points in the area
-    size_t Query(const mt::Rect& area) const noexcept {
-        return 0;
-    }
+	void Build(const std::vector<mt::Pt>& points) {
+		for (auto& point : points) {
+			this->Insert(point);
+		}
+	}
 
-    mt::Pt FindClosest(const mt::Pt& point) const noexcept {
-        return {0, 0};
-    }
+	// return all of points in the area
+	std::vector<mt::Pt> PointsInArea(const mt::Rect& area) const noexcept {
 
-    void Insert(const mt::Pt& point) {
-        (void) this->Insert(m_root, point);
-    }
+		return {};
+	}
 
-    void Delete(const mt::Pt& point) {
+	// return the closest neighbour point
+	std::optional<mt::Pt> FindClosest(const mt::Pt& point) const noexcept {
 
-    }
+		return std::nullopt;
+	}
+
+	void Insert(const mt::Pt& point) {
+		if (this->Insert(m_root, point)) {
+			m_size++;
+		}
+	}
+
+	void Erase(const mt::Pt& point) {
+		auto node = this->Find(m_root, point);
+		if (node) {
+			auto it = std::find(node->m_data.begin(), node->m_data.end(), point);
+			assert(it != node->m_data.end() && "Tree::Find method failed!");
+			std::swap(*it, node->m_data.back());
+			node->m_data.pop_back();
+			m_size--;
+		}
+	}
+
+	void Visit(const std::function<void(Node*)>& func) {
+		// apply func each node while traversing tree
+		this->Visit(m_root, func);
+	}
+
+	bool IsEmpty() const noexcept {
+		return m_size == 0;
+	}
+
+	size_t GetSize() const noexcept {
+		return m_size;
+	}
 
 private:
 
-    Node * Find(const mt::Pt& point) const noexcept {
+	// apply func each node while traversing tree
+	void Visit(Node* node, const std::function<void(Node*)>& func) {
+		for (size_t i = 0; i < Cardinals::COUNT; i++) {
+			if (node->m_children[i]) {
+				this->Visit(node->m_children[i], func);
+			}
+		}
+		std::invoke(func, node);
+	}
+
+	// Find the point in the node
+	// return nullptr if it doesn't exist
+	Node * Find(Node * node, const mt::Pt& point) const noexcept {
+		// point is outside the boundary
+		if (!node->m_box.Contains(point)) {
+			return nullptr;
+		}
+		// check whether it contains in this node instead of children
+		if (auto it = std::find(node->m_data.cbegin(), node->m_data.cend(), point); 
+			it != node->m_data.cend()
+		) {
+			return node;
+		}
+		// find a needed quarter
+		const auto cardinal = this->GetQuarter(point, node->m_box);
+		if (auto child = node->m_children[cardinal]; child != nullptr) {
+			return this->Find(child, point);
+		}
         return nullptr;
     }
 
+	// Insert `point` into the `node`
     bool Insert(Node * node, const mt::Pt& point) {
         // TODO: maybe remove this check?
         // point is outside the boundary
@@ -65,28 +127,29 @@ private:
             return true;
         }
 
-        // need to divide node so see what quater will be used
-        const auto& box { node->m_box };
-        const mt::Size size { box.size.width / 2.f, box.size.height / 2.f };
         // find a needed quarter
-        Cardinals cardinal;
-        if(point.x > box.GetMidX()) { // EAST
-            cardinal = point.y > box.GetMidY()? Cardinals::NE: Cardinals::SE;
-        }
-        else { // WEST
-            cardinal = point.y > box.GetMidY()? Cardinals::NW: Cardinals::SW;
-        }
-
+		const auto cardinal = this->GetQuarter(point, node->m_box);
         if(auto& child = node->m_children[cardinal]; child != nullptr) {
             return this->Insert(child, point);
         }
         else {
             child = new Node{};
-            child->m_box.origin = box.GetMid();
-            child->m_box.size = size;
+            child->m_box.origin = node->m_box.GetMid();
+            child->m_box.size = { node->m_box.size.width / 2.f,  node->m_box.size.height / 2.f };
             return true;
         }
     }
+
+	Cardinals GetQuarter(const mt::Pt& point, const mt::Rect& box) const noexcept {
+		Cardinals cardinal;
+		if (point.x > box.GetMidX()) { // EAST
+			cardinal = point.y > box.GetMidY() ? Cardinals::NE : Cardinals::SE;
+		}
+		else { // WEST
+			cardinal = point.y > box.GetMidY() ? Cardinals::NW : Cardinals::SW;
+		}
+		return cardinal;
+	}
 
 private:
     Node * m_root { nullptr };

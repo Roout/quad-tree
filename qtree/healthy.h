@@ -58,6 +58,10 @@ struct Pt {
     }
 };
 
+constexpr bool operator==(const Pt& lsh, const Pt& rsh) noexcept {
+	return lsh.x == rsh.x && lsh.y == rsh.y;
+}
+
 struct Size {
     float width;
     float height;
@@ -148,3 +152,11 @@ namespace Asserts {
 }
 
 }
+
+// to query the elapsed time in ms/ns/mcs/s
+class Timer {
+public:
+
+private:
+
+};
