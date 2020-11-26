@@ -1,10 +1,8 @@
 #pragma once
 
-#include "healthy.hpp"
+#include "healthy.h"
 #include <array>
 #include <vector>
-
-constexpr mt::Pt INVALID { -100000000.f, -100000000.f }; 
 
 enum Cardinals { NW = 0, NE, SW, SE, COUNT };
 

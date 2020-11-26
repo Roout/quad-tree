@@ -16,7 +16,7 @@ struct Pt {
         return x * x + y * y;
     }
 
-    constexpr float Length() const noexcept {
+    float Length() const noexcept {
         return sqrtf(this->SquareLength());
     }
 
@@ -24,7 +24,7 @@ struct Pt {
         return x * p.x + y * p.y;
     }
 
-    constexpr Pt Unit() const noexcept {
+    Pt Unit() const noexcept {
         const auto len { this->Length() };
         return { x / len, y / len };
     }

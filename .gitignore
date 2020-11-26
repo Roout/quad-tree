@@ -1,1 +1,5 @@
-build/
+.vs/
+SFML-2.5.1/examples/
+SFML-2.5.1/doc/
+SFML-2.5.1/bin/
+SFML-2.5.1/lib/
