@@ -150,8 +150,10 @@
   <ItemGroup>
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="MainScene.cpp" />
     <ClCompile Include="Node.cpp" />
     <ClCompile Include="QuadTree.cpp" />
+    <ClCompile Include="QuadTreeLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
