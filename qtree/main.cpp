@@ -1,9 +1,10 @@
 #include "Graphics.h"
 #include "QuadTree.h"
+#include "MainScene.h"
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode(600, 600), "SFML works!");	
-	mercury::MainScene scene;
+	sf::RenderWindow window(sf::VideoMode(600, 600), "Quad Tree");	
+	mercury::MainScene scene{ &window };
 	sf::Clock clock;
 	clock.restart();
 	while (window.isOpen()) {
