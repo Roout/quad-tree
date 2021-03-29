@@ -38,6 +38,10 @@ namespace mercury {
 			m_marks.clear();
 		}
 
+		float GetSize() const noexcept {
+			return m_size;
+		}
+
 	private:
 		sf::VertexArray	m_marks;
 		float			m_size;
