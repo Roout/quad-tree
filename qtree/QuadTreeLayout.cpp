@@ -30,26 +30,60 @@ namespace mercury {
 		m_marks = new Marks{ pointSize };
 		this->AddChild(m_marks);
 
-		auto listener = [](const sf::Event& event) {
+		m_selected.setFillColor({255, 0, 0, 100});
+		/*m_selected.setPosition();
+		m_selected.setSize();*/
+
+		auto listener = [this](const sf::Event& event) {
 			switch (event.type) {
 				case sf::Event::MouseButtonPressed: {
-					// select
+					// select region
 					if (event.mouseButton.button == sf::Mouse::Left) {
-						const sf::Vector2f mouse{
-							static_cast<float>(event.mouseButton.x),
+						m_mouse.emplace(
+							static_cast<float>(event.mouseButton.x), 
 							static_cast<float>(event.mouseButton.y)
+						);
+						m_selected.setPosition({ m_mouse->x, m_mouse->y });
+						m_selected.setSize({ 1.f, 1.f });
+					}
+				} break;
+				case sf::Event::MouseMoved: {
+					if (m_mouse) {
+						const mt::Pt mouse{
+							static_cast<float>(event.mouseMove.x),
+							static_cast<float>(event.mouseMove.y)
 						};
-						std::cerr << "Pressed: " << mouse.x << " " << mouse.y << '\n';
+						const mt::Rect selected{
+							std::min(mouse.x, m_mouse->x),
+							std::min(mouse.y, m_mouse->y),
+							std::max(mouse.x, m_mouse->x) - std::min(mouse.x, m_mouse->x),
+							std::max(mouse.y, m_mouse->y) - std::min(mouse.y, m_mouse->y)
+						};
+						m_selected.setPosition(selected.GetMinX(), selected.GetMinY());
+						m_selected.setSize({ selected.size.width, selected.size.height });
+						auto points = m_tree->GetPointsAt(selected);
 					}
 				} break;
 				case sf::Event::MouseButtonReleased: {
-					// deselect
+					// deselect region
 					if (event.mouseButton.button == sf::Mouse::Left) {
-						const sf::Vector2f mouse{
+						const mt::Pt mouse{
 							static_cast<float>(event.mouseButton.x),
 							static_cast<float>(event.mouseButton.y)
 						};
-						std::cerr << "Released: " << mouse.x << " " << mouse.y << '\n';
+						const mt::Rect selected {
+							std::min(mouse.x, m_mouse->x),
+							std::min(mouse.y, m_mouse->y),
+							std::max(mouse.x, m_mouse->x) - std::min(mouse.x, m_mouse->x),
+							std::max(mouse.y, m_mouse->y) - std::min(mouse.y, m_mouse->y)
+						};
+						auto points = m_tree->GetPointsAt(selected);
+						for (auto&& p : points) {
+							std::cerr << "{" << p.x << " " << p.y << "} ";
+						}
+						std::cerr << "\n";
+						// clean up
+						m_mouse.reset();
 					}
 				} break;
 				default: break;
@@ -86,6 +120,9 @@ namespace mercury {
 	void QuadTreeLayout::OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {
 		for (auto&& rect : m_rects) {
 			target.draw(rect, states);
+		}
+		if (m_mouse) {
+			target.draw(m_selected, states);
 		}
 	}
 

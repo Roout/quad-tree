@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics.h"
 #include <vector>
+#include <optional>
 
 namespace tree {
 	class QuadTree;
@@ -39,7 +40,9 @@ namespace mercury {
 		// marks keep points from the tree
 		Marks * m_marks{ nullptr };
 		std::vector<sf::RectangleShape> m_rects;
+		// last clicked
+		std::optional<mt::Pt> m_mouse;
+		sf::RectangleShape m_selected;
 	};
-
 
 } // namespace mercury
