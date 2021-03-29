@@ -43,6 +43,9 @@
     <None Include=".gitignore">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="README.md">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\TimesNewRomans.ttf">
