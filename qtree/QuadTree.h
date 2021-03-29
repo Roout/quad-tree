@@ -26,11 +26,11 @@ namespace tree {
 	 */
 	constexpr Cardinals GetQuarter(const mt::Pt& point, const mt::Rect& box) noexcept {
 		Cardinals cardinal = Cardinals::NE;
-		if (point.x > box.GetMidX()) { // EAST
-			cardinal = point.y > box.GetMidY() ? Cardinals::SE : Cardinals::NE;
+		if (point.x >= box.GetMidX()) { // EAST
+			cardinal = point.y >= box.GetMidY() ? Cardinals::SE : Cardinals::NE;
 		}
 		else { // WEST
-			cardinal = point.y > box.GetMidY() ? Cardinals::SW : Cardinals::NW;
+			cardinal = point.y >= box.GetMidY() ? Cardinals::SW : Cardinals::NW;
 		}
 		return cardinal;
 	}

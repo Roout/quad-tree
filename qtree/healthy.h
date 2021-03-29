@@ -109,11 +109,11 @@ namespace mt {
 		}
 
 		constexpr float GetMaxX() const noexcept {
-			return origin.x + size.width - 1.f;
+			return origin.x + size.width;
 		}
 
 		constexpr float GetMaxY() const noexcept {
-			return origin.y + size.height - 1.f;
+			return origin.y + size.height;
 		}
 
 		constexpr Pt GetMid() const noexcept {
@@ -122,9 +122,9 @@ namespace mt {
 
 		constexpr bool Contains(const Pt& pt) const noexcept {
 			return (pt.x >= origin.x
-				&& pt.x <= GetMaxX()
+				&& pt.x < GetMaxX()
 				&& pt.y >= origin.y
-				&& pt.y <= GetMaxY()
+				&& pt.y < GetMaxY()
 			);
 		}
 
@@ -157,48 +157,11 @@ namespace mt {
 
 		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 5.f, 11.f, 2.f, 2.f }) == false, "Intersect failed a check!");
 		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 11.f, 5.f, 2.f, 2.f }) == false, "Intersect failed a check!");
-		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 5.f, 10.f, 2.f, 2.f }) == false, "Intersect failed a check!");
+		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 5.f, 10.f, 2.f, 2.f }) == true, "Intersect failed a check!");
 		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 5.f, 5.f, 2.f,  2.f }) == true, "Intersect failed a check!");
 		static_assert(Rect{ 0.f, 0.f, 10.f, 10.f }.Intersect(Rect{ 5.f, 5.f, 20.f, 20.f }) == true, "Intersect failed a check!");
 	}
 
 }
-
-
-// to query the elapsed time in ms/ns/mcs/s
-class Clock {
-public:
-	using nano = std::chrono::nanoseconds;
-	using micro = std::chrono::microseconds;
-	using milli = std::chrono::milliseconds;
-	using sec = std::chrono::seconds;
-
-	Clock()
-		: m_start{ std::chrono::system_clock::now() }
-	{}
-
-	/**
-	 * Restart clock
-	 */
-	void Restart() noexcept {
-		m_start = std::chrono::system_clock::now();
-	}
-
-	/**
-	 * Possible template parameters:
-	 * std::chrono::milliseconds
-	 * std::chrono::nanoseconds
-	 * std::chrono::microseconds
-	 * std::chrono::seconds
-	 */
-	template<class Time>
-	size_t Elapsed() const noexcept {
-		auto end = std::chrono::system_clock::now();
-		return std::chrono::duration_cast<Time>(end - m_start).count();
-	}
-
-private:
-	std::chrono::system_clock::time_point m_start;
-};
 
 #endif // HEALTHY_HPP__

@@ -43,7 +43,7 @@ namespace mercury {
 			shape.setOutlineThickness(2.f);
 			sf::Vector2f vec2{ node->m_box.origin.x, node->m_box.origin.y };
 			shape.setPosition(vec2);
-			shape.setSize({ node->m_box.size.width, node->m_box.size.height });
+			shape.setSize({ node->m_box.size.width - 1.f, node->m_box.size.height - 1.f });
 			m_rects.push_back(shape);
 
 			// add points
