@@ -141,7 +141,9 @@
   <ItemGroup>
     <ClInclude Include="healthy.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="MainScene.h" />
     <ClInclude Include="QuadTree.h" />
+    <ClInclude Include="QuadTreeLayout.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
