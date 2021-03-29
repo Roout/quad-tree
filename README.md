@@ -1,7 +1,7 @@
 # QuadTree
 [QuadTree](https://en.wikipedia.org/wiki/Quadtree) implementation with visiulization using SFML.
 
-<img src="about/quadtrees.gif" width="800" height="600" />
+<img src="https://github.com/Roout/quad-tree/blob/master/about/quadtree.gif" width="800" height="600" />
 
 ## Prerequisites
 
