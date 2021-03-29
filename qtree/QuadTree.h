@@ -69,6 +69,9 @@ namespace tree {
 
 	class QuadTree {
 	public:
+
+		using Visitor_t = std::function<void(Node*&)>;
+
 		QuadTree(const mt::Rect& fullArea);
 
 		~QuadTree();
@@ -85,21 +88,23 @@ namespace tree {
 
 		void Erase(const mt::Pt& point);
 
-		void PostOrderVisit(const std::function<void(Node*)>& func);
+		void PostOrderVisit(const Visitor_t& func);
 		
-		void PreOrderVisit(const std::function<void(Node*)>& func);
+		void PreOrderVisit(const Visitor_t& func);
 
 		bool IsEmpty() const noexcept;
 
 		// retrun number of points in the tree
 		size_t GetSize() const noexcept;
 
+		void Clear();
+
 	private:
 
 		// apply func each node while traversing tree
-		void PostOrderVisit(Node* node, const std::function<void(Node*)>& func);
+		void PostOrderVisit(Node*& node, const Visitor_t& func);
 
-		void PreOrderVisit(Node* node, const std::function<void(Node*)>& func);
+		void PreOrderVisit(Node*& node, const Visitor_t& func);
 
 		// Find the point in the node
 		// return nullptr if it doesn't exist
@@ -110,6 +115,7 @@ namespace tree {
 
 	private:
 		Node * m_root{ nullptr };
+		// number of vertices in the tree
 		size_t m_size{ 0 };
 	};
 

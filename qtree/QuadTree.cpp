@@ -11,9 +11,22 @@ namespace tree {
 	}
 
 	QuadTree::~QuadTree() {
-		this->PostOrderVisit(m_root, [](Node* node) {
-			delete node;
-		});
+		this->Clear();
+		delete m_root;
+	}
+
+	void QuadTree::Clear() {
+		// clean up everything except the root
+		m_root->m_data.clear();
+		for (auto&& child : m_root->m_children) {
+			if (child) {
+				this->PostOrderVisit(child, [](Node*& node) {
+					delete node;
+					node = nullptr;
+				});
+			}
+		}
+		m_size = 0;
 	}
 
 	void QuadTree::Build(const std::vector<mt::Pt>& points) {
@@ -73,31 +86,31 @@ namespace tree {
 		}
 	}
 
-	void QuadTree::PostOrderVisit(const std::function<void(Node*)>& func) {
+	void QuadTree::PostOrderVisit(const Visitor_t& func) {
 		// apply func each node while traversing tree
 		this->PostOrderVisit(m_root, func);
 	}
 
-	void QuadTree::PreOrderVisit(const std::function<void(Node*)>& func) {
+	void QuadTree::PreOrderVisit(const Visitor_t& func) {
 		// apply func each node while traversing tree
 		this->PreOrderVisit(m_root, func);
 	}
 
 	// apply func each node while traversing tree
-	void QuadTree::PostOrderVisit(Node* node, const std::function<void(Node*)>& func) {
-		for (size_t i = 0; i < Cardinals::COUNT; i++) {
-			if (node->m_children[i]) {
-				this->PostOrderVisit(node->m_children[i], func);
+	void QuadTree::PostOrderVisit(Node*& node, const Visitor_t& func) {
+		for (auto& child : node->m_children) {
+			if (child != nullptr) {
+				this->PostOrderVisit(child, func);
 			}
 		}
 		std::invoke(func, node);
 	}
 
-	void QuadTree::PreOrderVisit(Node* node, const std::function<void(Node*)>& func) {
-		for (size_t i = 0; i < Cardinals::COUNT; i++) {
-			if (node->m_children[i]) {
+	void QuadTree::PreOrderVisit(Node*& node, const Visitor_t& func) {
+		for (auto& child : node->m_children) {
+			if (child != nullptr) {
 				std::invoke(func, node);
-				this->PreOrderVisit(node->m_children[i], func);
+				this->PreOrderVisit(child, func);
 			}
 		}
 	}
