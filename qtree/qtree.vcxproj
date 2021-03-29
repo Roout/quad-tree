@@ -141,6 +141,7 @@
   <ItemGroup>
     <ClInclude Include="healthy.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Interface.h" />
     <ClInclude Include="MainScene.h" />
     <ClInclude Include="QuadTree.h" />
     <ClInclude Include="QuadTreeLayout.h" />
