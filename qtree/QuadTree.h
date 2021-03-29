@@ -78,7 +78,7 @@ namespace tree {
 		}
 
 		~QuadTree() {
-			this->Visit(m_root, [](Node* node) {
+			this->PostOrderVisit(m_root, [](Node* node) {
 				delete node;
 			});
 		}
@@ -140,9 +140,14 @@ namespace tree {
 			}
 		}
 
-		void Visit(const std::function<void(Node*)>& func) {
+		void PostOrderVisit(const std::function<void(Node*)>& func) {
 			// apply func each node while traversing tree
-			this->Visit(m_root, func);
+			this->PostOrderVisit(m_root, func);
+		}
+		
+		void PreOrderVisit(const std::function<void(Node*)>& func) {
+			// apply func each node while traversing tree
+			this->PreOrderVisit(m_root, func);
 		}
 
 		bool IsEmpty() const noexcept {
@@ -157,13 +162,22 @@ namespace tree {
 	private:
 
 		// apply func each node while traversing tree
-		void Visit(Node* node, const std::function<void(Node*)>& func) {
+		void PostOrderVisit(Node* node, const std::function<void(Node*)>& func) {
 			for (size_t i = 0; i < Cardinals::COUNT; i++) {
 				if (node->m_children[i]) {
-					this->Visit(node->m_children[i], func);
+					this->PostOrderVisit(node->m_children[i], func);
 				}
 			}
 			std::invoke(func, node);
+		}
+
+		void PreOrderVisit(Node* node, const std::function<void(Node*)>& func) {
+			for (size_t i = 0; i < Cardinals::COUNT; i++) {
+				if (node->m_children[i]) {
+					std::invoke(func, node);
+					this->PreOrderVisit(node->m_children[i], func);
+				}
+			}
 		}
 
 		// Find the point in the node
@@ -208,6 +222,11 @@ namespace tree {
 				return true;
 			}
 			else {
+				// TODO: check whether a point already exist or not in the tree
+				{
+
+				}
+				
 				child = new Node{};
 				child->m_box = GetRect(cardinal, node->m_box);
 
