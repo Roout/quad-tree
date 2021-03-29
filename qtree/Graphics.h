@@ -50,6 +50,15 @@ namespace mercury {
 			child->m_parent = this;
 		}
 
+		void RemoveChild(Node *child) {
+			auto it = std::find(m_children.begin(), m_children.end(), child);
+			if (it != m_children.end()) {
+				(*it)->m_parent = nullptr;
+				std::swap(m_children.back(), *it);
+				m_children.pop_back();
+			}
+		}
+
 		void draw(sf::RenderTarget& target, sf::RenderStates states) const override {
 			// apply the entity's transform -- combine it with the one that was passed by the caller
 			states.transform *= getTransform(); // getTransform() is defined by sf::Transformable
@@ -73,6 +82,43 @@ namespace mercury {
 		std::vector<Node*> m_children;
 	};
 
+	class Cross : public Node {
+	public:
+		Cross(const mt::Pt& center, float length)
+			: m_center{ center }
+			, m_length{ length }
+		{
+			this->Init();
+		}
+
+		void Init() override {
+			m_lines.setPrimitiveType(sf::PrimitiveType::Lines);
+			m_color = sf::Color(0, 0, 255, 255);
+
+			const auto half = m_length / 2.f;
+			sf::Vector2f corners[] = {
+				{ m_center.x - half, m_center.y },
+				{ m_center.x + half, m_center.y },
+				{ m_center.x, m_center.y + half },
+				{ m_center.x, m_center.y - half },
+			};
+			for (const auto& corner : corners) {
+				m_lines.append(sf::Vertex{ corner, m_color });
+			}
+		}
+
+		void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const override {
+			states.transform *= getTransform();
+			target.draw(m_lines, states);
+		}
+
+	private:
+		mt::Pt m_center;
+		float m_length{ 0.f };
+
+		sf::VertexArray	m_lines;
+		sf::Color m_color;
+	};
 
 	class Marks : public Node {
 	public:
@@ -105,12 +151,15 @@ namespace mercury {
 			}
 		}
 
+		void Clear() {
+			m_marks.clear();
+		}
+
 	private:
 		sf::VertexArray	m_marks;
 		float			m_size;
 		sf::Color		m_color;
 	};
-
 
 	class Grid : public Node {
 	public:
@@ -157,132 +206,5 @@ namespace mercury {
 		int m_columns{ 0 };
 		int m_rows{ 0 };
 	};
-
-	class QuadTreeLayout : public Node {
-	public:
-
-		QuadTreeLayout(std::unique_ptr<tree::QuadTree>&& tree) :
-			m_tree{ std::move(tree) }
-		{
-			this->Init();
-		};
-
-		~QuadTreeLayout() {
-			for (auto& child : m_children) {
-				delete child;
-				child = nullptr;
-			}
-			m_children.clear();
-		}
-
-		void Update(float dt) override {
-			for (auto&& child : m_children) {
-				child->Update(dt);
-			}
-		}
-
-		void Init() override {
-			m_marks = new Marks{};
-			this->AddChild(m_marks);
-		}
-
-	private:
-		// model
-		std::unique_ptr<tree::QuadTree> m_tree;
-		// marks correspond to point in the tree
-		Marks * m_marks{ nullptr };
-	};
-
-	class MainScene : public Node {
-	public:
-		MainScene() {
-			this->Init();
-		}
-
-		~MainScene() {
-			for (auto& child : m_children) {
-				delete child;
-				child = nullptr;
-			}
-		}
-
-		void Lock() noexcept {
-			m_isLocked = true;
-		}
-
-		void Unlock() noexcept {
-			m_isLocked = false;
-		}
-
-		bool IsLocked() const noexcept {
-			return m_isLocked;
-		}
-
-
-		void Init() {
-			auto grid = new Grid{ 600.f, 600.f, 20, 20 };
-			grid->scale(0.9f, 0.9f);
-			grid->move({ 10.f, 10.f });
-			sf::Vector2f marks[4] = {
-				{5.f, 10.f},
-				{50.f, 100.f},
-				{50.f, 210.f},
-				{500.f, 410.f}
-			};
-			auto markNode = new Marks{};
-			for (const auto& mark : marks) {
-				markNode->AddPoint(mark);
-			}
-			this->AddChild(grid);
-			this->AddChild(markNode);
-			this->AddEventListener([this](const sf::Event& event) {
-				switch (event.type) {
-					case sf::Event::MouseButtonPressed: {
-						// select
-						if (event.mouseButton.button == sf::Mouse::Left) {
-							this->Lock();
-							m_mouse.x = static_cast<float>(event.mouseButton.x);
-							m_mouse.y = static_cast<float>(event.mouseButton.y);
-						}
-					} break;
-					case sf::Event::MouseButtonReleased: {
-						// deselect
-						if (event.mouseButton.button == sf::Mouse::Left) {
-							this->Unlock();
-							m_mouse.x = m_mouse.y = 0.f;
-						}
-					} break;
-					case sf::Event::MouseMoved: {
-						// move node if selected
-						if (this->IsLocked()) {
-							this->move(event.mouseMove.x - m_mouse.x, event.mouseMove.y - m_mouse.y);
-							m_mouse.x = static_cast<float>(event.mouseMove.x);
-							m_mouse.y = static_cast<float>(event.mouseMove.y);
-						}
-					} break;
-					case sf::Event::MouseWheelScrolled: {
-						// zoom in 
-						if (event.mouseWheelScroll.delta > 0) {
-							this->scale(1.1f, 1.1f);
-						}
-						else if (event.mouseWheelScroll.delta < 0) {
-							this->scale(0.9f, 0.9f);
-						}
-
-						// zoom out
-					} break;
-					default: break;
-				}
-				return true;
-			});
-		}
-
-	private:
-		bool m_isLocked{ false };
-
-		sf::Vector2f m_mouse{ 0.f, 0.f };
-
-	};
-
 
 }
