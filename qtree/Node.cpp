@@ -10,13 +10,14 @@ namespace mercury {
 
 	// \return true if event is consumed otherwise false
 	bool Node::ProcessEvent(const sf::Event& event) {
-		if (m_listener && m_listener(event)) {
-			return true;
+		// descend down the scene graph
+		for (auto&child : m_children) {
+			if (child->ProcessEvent(event)) {
+				return true; // event was consumed
+			}
 		}
-		if (m_parent) {
-			return m_parent->ProcessEvent(event);
-		}
-		return false;
+		// try to consume event at this Node
+		return m_listener && m_listener(event);
 	}
 
 	void Node::AddChild(Node *child) {
