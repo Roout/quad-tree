@@ -75,6 +75,10 @@ namespace tree {
 		}
 	}
 
+	bool QuadTree::Find(const mt::Pt & point) const {
+		return this->Find(m_root, point);
+	}
+
 	void QuadTree::Erase(const mt::Pt& point) {
 		auto node = this->Find(m_root, point);
 		if (node) {

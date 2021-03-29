@@ -86,6 +86,8 @@ namespace tree {
 
 		void Insert(const mt::Pt& point);
 
+		bool Find(const mt::Pt& point) const;
+
 		void Erase(const mt::Pt& point);
 
 		void PostOrderVisit(const Visitor_t& func);
