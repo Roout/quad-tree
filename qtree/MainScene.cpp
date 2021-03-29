@@ -55,6 +55,10 @@ namespace mercury {
 				// TODO: should insert only clicks on working space
 				m_tree->Insert(point);
 			}
+			else if (event.key.code == sf::Keyboard::F) {
+				std::cerr << "Flush whole tree.\n";
+				m_tree->Clear();
+			}
 		} break;
 		case sf::Event::MouseButtonReleased: {
 			// deselect
