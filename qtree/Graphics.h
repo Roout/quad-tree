@@ -1,12 +1,6 @@
 #pragma once
-#include <iostream>
-#include <functional>
-#include <vector>
-
 #include "healthy.h"
 #include "Node.h"
-#include "QuadTree.h"
-#include <SFML/Graphics.hpp>
 
 namespace mercury {
 
@@ -61,6 +55,10 @@ namespace mercury {
 			, m_columns{ columns }
 			, m_rows{ rows }
 		{
+			this->Init();
+		}
+
+		void Init() override {
 			m_vertices.resize(2 * (m_rows + m_columns) + 4);
 			m_vertices.setPrimitiveType(sf::Lines);
 

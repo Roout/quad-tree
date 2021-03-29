@@ -4,6 +4,8 @@
 #include "Graphics.h"
 #include "QuadTree.h"
 
+#include <iostream>
+
 namespace mercury {
 
 	MainScene::MainScene(sf::RenderWindow * window)
