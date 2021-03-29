@@ -1,6 +1,8 @@
 #include "QuadTreeLayout.h"
 #include "QuadTree.h"
 
+#include <iostream>
+
 namespace mercury {
 
 	QuadTreeLayout::QuadTreeLayout(tree::QuadTree* tree) 
@@ -27,6 +29,34 @@ namespace mercury {
 		const float pointSize = 4.f;
 		m_marks = new Marks{ pointSize };
 		this->AddChild(m_marks);
+
+		auto listener = [](const sf::Event& event) {
+			switch (event.type) {
+				case sf::Event::MouseButtonPressed: {
+					// select
+					if (event.mouseButton.button == sf::Mouse::Left) {
+						const sf::Vector2f mouse{
+							static_cast<float>(event.mouseButton.x),
+							static_cast<float>(event.mouseButton.y)
+						};
+						std::cerr << "Pressed: " << mouse.x << " " << mouse.y << '\n';
+					}
+				} break;
+				case sf::Event::MouseButtonReleased: {
+					// deselect
+					if (event.mouseButton.button == sf::Mouse::Left) {
+						const sf::Vector2f mouse{
+							static_cast<float>(event.mouseButton.x),
+							static_cast<float>(event.mouseButton.y)
+						};
+						std::cerr << "Released: " << mouse.x << " " << mouse.y << '\n';
+					}
+				} break;
+				default: break;
+			}
+			return false;
+		};
+		this->AddEventListener(std::move(listener));
 	}
 
 	void QuadTreeLayout::AddTreeToScene() {
