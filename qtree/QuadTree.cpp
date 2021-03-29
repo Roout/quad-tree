@@ -133,22 +133,20 @@ namespace tree {
 		}
 
 		const auto cardinal = GetQuarter(point, node->m_box);
-
 		// find a needed quarter
 		if (auto& child = node->m_children[cardinal]; child != nullptr) {
 			return this->Insert(child, point);
 		}
-		else if (node->m_data.size() < Node::MAX_POINTS) {
-			// see if the node still can accomodate any point
+		else if (auto it = std::find(node->m_data.cbegin(), node->m_data.cend(), point);
+				it != node->m_data.cend()
+		) { // point already exist in the tree
+			return false;
+		}
+		else if (node->m_data.size() < Node::MAX_POINTS) { // see if the node still can accomodate any point
 			node->m_data.push_back(point);
 			return true;
 		}
 		else {
-			// TODO: check whether a point already exist or not in the tree
-			{
-
-			}
-
 			child = new Node{};
 			child->m_box = GetRect(cardinal, node->m_box);
 
