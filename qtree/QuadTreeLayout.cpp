@@ -1,8 +1,6 @@
 #include "QuadTreeLayout.h"
 #include "QuadTree.h"
 
-#include <iostream>
-
 namespace mercury {
 
 	QuadTreeLayout::QuadTreeLayout(tree::QuadTree* tree) 
@@ -19,8 +17,13 @@ namespace mercury {
 	}
 
 	void QuadTreeLayout::Update(float dt) {
+		// remove all existing marks
+		m_marks->Clear();
+		// remove all existing quads
+		m_rects.clear();
 		// first scrap all drawables from the tree
-		this->AddTreeToScene();
+		this->AddTree();
+		this->AddSelectPoints();
 		// now update all children (points)
 		Node::Update(dt);
 	}
@@ -30,9 +33,7 @@ namespace mercury {
 		m_marks = new Marks{ pointSize };
 		this->AddChild(m_marks);
 
-		m_selected.setFillColor({255, 0, 0, 100});
-		/*m_selected.setPosition();
-		m_selected.setSize();*/
+		m_selected.setFillColor({255, 0, 0, 80});
 
 		auto listener = [this](const sf::Event& event) {
 			switch (event.type) {
@@ -61,7 +62,8 @@ namespace mercury {
 						};
 						m_selected.setPosition(selected.GetMinX(), selected.GetMinY());
 						m_selected.setSize({ selected.size.width, selected.size.height });
-						auto points = m_tree->GetPointsAt(selected);
+						// update points
+						m_selectedPoints = m_tree->GetPointsAt(selected);
 					}
 				} break;
 				case sf::Event::MouseButtonReleased: {
@@ -77,11 +79,8 @@ namespace mercury {
 							std::max(mouse.x, m_mouse->x) - std::min(mouse.x, m_mouse->x),
 							std::max(mouse.y, m_mouse->y) - std::min(mouse.y, m_mouse->y)
 						};
-						auto points = m_tree->GetPointsAt(selected);
-						for (auto&& p : points) {
-							std::cerr << "{" << p.x << " " << p.y << "} ";
-						}
-						std::cerr << "\n";
+						// update points
+						m_selectedPoints = m_tree->GetPointsAt(selected);
 						// clean up
 						m_mouse.reset();
 					}
@@ -93,12 +92,7 @@ namespace mercury {
 		this->AddEventListener(std::move(listener));
 	}
 
-	void QuadTreeLayout::AddTreeToScene() {
-		// remove all existing marks
-		m_marks->Clear();
-		// remove all existing quads
-		m_rects.clear();
-
+	void QuadTreeLayout::AddTree() {
 		m_tree->PostOrderVisit([this](tree::Node* node) {
 			// add quad shape:
 			sf::RectangleShape shape;
@@ -115,6 +109,23 @@ namespace mercury {
 				m_marks->AddPoint({ point.x, point.y });
 			}
 		});
+	}
+
+	void QuadTreeLayout::AddSelectPoints() {
+		const sf::Color color{ 0, 255, 0, 255 };
+		const float pointSize{ m_marks->GetSize() + 2.f };
+
+		for (const auto& point : m_selectedPoints) {
+			sf::Vector2f position{
+				point.x - pointSize / 2.f,
+				point.y - pointSize / 2.f
+			};
+			sf::RectangleShape shape;
+			shape.setPosition(position);
+			shape.setSize({ pointSize, pointSize });
+			shape.setFillColor(color);
+			m_rects.push_back(shape);
+		}
 	}
 
 	void QuadTreeLayout::OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {

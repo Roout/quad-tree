@@ -32,7 +32,9 @@ namespace mercury {
 
 	private:
 		
-		void AddTreeToScene();
+		void AddTree();
+
+		void AddSelectPoints();
 
 		void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const override;
 	
@@ -40,9 +42,11 @@ namespace mercury {
 		// marks keep points from the tree
 		Marks * m_marks{ nullptr };
 		std::vector<sf::RectangleShape> m_rects;
-		// last clicked
+		// coordinates of the last Left Mouse Press event
 		std::optional<mt::Pt> m_mouse;
+		// selected area
 		sf::RectangleShape m_selected;
+		std::vector<mt::Pt> m_selectedPoints;
 	};
 
 } // namespace mercury
