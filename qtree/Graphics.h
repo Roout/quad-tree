@@ -72,7 +72,7 @@ namespace mercury {
 
 	protected:
 
-		virtual void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const {};
+		virtual void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {};
 	
 	protected:
 
@@ -107,8 +107,7 @@ namespace mercury {
 			}
 		}
 
-		void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const override {
-			states.transform *= getTransform();
+		void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const override {
 			target.draw(m_lines, states);
 		}
 
@@ -133,8 +132,7 @@ namespace mercury {
 			m_color = sf::Color(255, 0, 0, 255);
 		}
 
-		void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const override {
-			states.transform *= getTransform();
+		void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const override {
 			target.draw(m_marks, states);
 		}
 
@@ -195,7 +193,7 @@ namespace mercury {
 
 		~Grid() = default;
 
-		void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const override {
+		void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const override {
 			target.draw(m_vertices, states);
 		}
 
