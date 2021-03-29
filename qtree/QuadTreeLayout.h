@@ -54,8 +54,8 @@ namespace mercury {
 			// remove all existing quads
 			m_rects.clear();
 
-			m_tree->Visit([this](tree::Node* node) {
-				// add quad shape
+			m_tree->PostOrderVisit([this](tree::Node* node) {
+				// add quad shape:
 				sf::RectangleShape shape;
 				shape.setFillColor(sf::Color::Transparent);
 				shape.setOutlineColor(sf::Color::Blue);
@@ -64,6 +64,7 @@ namespace mercury {
 				shape.setPosition(vec2);
 				shape.setSize({ node->m_box.size.width, node->m_box.size.height });
 				m_rects.push_back(shape);
+				
 				// add points
 				for (const auto& point : node->m_data) {
 					m_marks->AddPoint({ point.x, point.y });
@@ -71,8 +72,7 @@ namespace mercury {
 			});
 		}
 
-		void OnDraw(sf::RenderTarget& target, sf::RenderStates states) const override {
-			states.transform *= getTransform();
+		void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const override {
 			for (auto&& rect : m_rects) {
 				target.draw(rect, states);
 			}
