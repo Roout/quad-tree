@@ -1,6 +1,7 @@
 #pragma once
 #include "Graphics.h"
 #include "QuadTree.h"
+#include "Interface.h"
 #include "QuadTreeLayout.h"
 
 #include <functional>
@@ -23,10 +24,15 @@ namespace mercury {
 		}
 
 		void Init() {
-			mt::Rect rect{ 0.f, 0.f, 600.f, 800.f };
+			mt::Rect rect{ 0.f, 0.f, 600.f, 600.f };
 			m_tree = std::make_unique<tree::QuadTree>(rect);
 			m_treeLayout = new QuadTreeLayout{ m_tree.get() };
 			this->AddChild(m_treeLayout);
+			
+			auto description = new Description(sf::IntRect{0, 0, 200, 600}, m_tree.get());
+			description->setPosition(600.f, 0.f);
+			this->AddChild(description);
+
 			this->AddEventListener(std::bind(&MainScene::EventListener, this, std::placeholders::_1));
 		}
 
@@ -50,6 +56,7 @@ namespace mercury {
 						static_cast<float>(sf::Mouse::getPosition(*m_window).y)
 					};
 					std::cerr << "Insert point: " << point.x << " " << point.y << '\n';
+					// TODO: should insert only clicks on working space
 					m_tree->Insert(point);
 				}
 			} break;
