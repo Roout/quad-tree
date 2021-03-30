@@ -1,7 +1,74 @@
 #include "QuadTree.h"
+
 #include <queue>
+#include <cassert>
 
 namespace tree {
+
+	/**
+	 * Get quarter base where the point belongs base on following SFML coordinate system:
+	 * (0, 0) ----------- (W, 0)
+	 * ...
+	 * ...
+	 * (0, H) ----------- (W, H)
+	 */
+	static constexpr Cardinals GetQuarter(const mt::Pt& point, const mt::Rect& box) noexcept {
+		Cardinals cardinal = Cardinals::NE;
+		if (point.x >= box.GetMidX()) { // EAST
+			cardinal = point.y >= box.GetMidY() ? Cardinals::SE : Cardinals::NE;
+		}
+		else { // WEST
+			cardinal = point.y >= box.GetMidY() ? Cardinals::SW : Cardinals::NW;
+		}
+		return cardinal;
+	}
+
+	/**
+	 * Form rectangle from quarter on following SFML coordinate system:
+	 * (0, 0) ----------- (W, 0)
+	 * ...
+	 * ...
+	 * (0, H) ----------- (W, H)
+	 */
+	static constexpr mt::Rect GetRect(Cardinals cardinal, const mt::Rect& box) noexcept {
+		switch (cardinal) {
+		case Cardinals::NE:
+			return { box.GetMidX(), box.GetMinY(), box.size.width / 2.f, box.size.height / 2.f };
+		case Cardinals::SE:
+			return { box.GetMidX(), box.GetMidY(), box.size.width / 2.f, box.size.height / 2.f };
+		case Cardinals::NW:
+			return { box.GetMinX(), box.GetMinY(), box.size.width / 2.f, box.size.height / 2.f };
+		case Cardinals::SW:
+			return { box.GetMinX(), box.GetMidY(), box.size.width / 2.f, box.size.height / 2.f };
+		default: assert(false && "Can't fallthrough here!");  break;
+		}
+
+		return box;
+	}
+
+	static bool IsLeaf(const Node *node) noexcept {
+		return std::all_of(
+			node->m_children.cbegin(), node->m_children.cend(),
+			[](const Node* node) {
+				return node == nullptr;
+			}
+		);
+	}
+
+	/**
+	* Trying to get rid of the child node (leaf) transfering it's data to parent beforehand
+	*/
+	static void TryMerge(Node *&child, Node *&parent) noexcept {
+		assert(parent != child && "Can't merge root");
+		assert(IsLeaf(child) && "Trying to merge non-leaf node");
+
+		if (child->m_data.size() + parent->m_data.size() <= Node::MAX_POINTS) {
+			parent->m_data.insert(parent->m_data.end(), child->m_data.cbegin(), child->m_data.cend());
+			delete child;
+			child = nullptr;
+		}
+
+	}
 
 	QuadTree::QuadTree(const mt::Rect& fullArea)
 		: m_root{ new Node {} }
@@ -80,14 +147,7 @@ namespace tree {
 	}
 
 	void QuadTree::Erase(const mt::Pt& point) {
-		auto node = this->Find(m_root, point);
-		if (node) {
-			auto it = std::find(node->m_data.begin(), node->m_data.end(), point);
-			assert(it != node->m_data.end() && "Tree::Find method failed!");
-			std::swap(*it, node->m_data.back());
-			node->m_data.pop_back();
-			m_size--;
-		}
+		this->Erase(m_root, m_root, point);
 	}
 
 	void QuadTree::PostOrderVisit(const Visitor_t& func) {
@@ -98,6 +158,51 @@ namespace tree {
 	void QuadTree::PreOrderVisit(const Visitor_t& func) {
 		// apply func each node while traversing tree
 		this->PreOrderVisit(m_root, func);
+	}
+
+	void QuadTree::Erase(Node *& node, Node *& parent, const mt::Pt & point) {
+		// point is outside the boundary
+		if (!node->m_box.Contains(point)) {
+			return;
+		}
+		// find a needed quarter
+		const auto cardinal = GetQuarter(point, node->m_box);
+		if (auto& child = node->m_children[cardinal]; child != nullptr) {
+			this->Erase(child, node, point);
+			// restore properties of the tree
+			if (!child && (parent != node) && IsLeaf(node)) {
+				// child was removed and now this node is a leaf 
+				// so we can try to merge it with parent (maybe points can be transfered to parent node)
+				// and this node will be useless too.
+				TryMerge(node, parent);
+			}
+			else if (child && IsLeaf(child)) {
+				// target node (from which we remove the point) wasn't leaf before and now it is
+				// so we can try to merge it with parent (maybe points can be transfered to parent node)
+				// and this node will be useless too.
+				TryMerge(child, node);
+			}
+		}
+		else if (auto it = std::find(node->m_data.begin(), node->m_data.end(), point);
+			it != node->m_data.end()
+		) {
+			// remove point from the node
+			std::swap(*it, node->m_data.back());
+			node->m_data.pop_back();
+			m_size--;
+
+			if (auto isLeaf = IsLeaf(node); isLeaf && node != parent) {
+				TryMerge(node, parent);
+			}
+			else if (!isLeaf) {
+				// try to find child which is leaf and data from which can extracted to this node
+				for (auto & child : node->m_children) {
+					if (child && IsLeaf(child)){
+						TryMerge(child, node);
+					}
+				}
+			}
+		}
 	}
 
 	// apply func each node while traversing tree
@@ -134,7 +239,7 @@ namespace tree {
 		}
 		else if (auto it = std::find(node->m_data.cbegin(), node->m_data.cend(), point);
 			it != node->m_data.cend()
-			) {
+		) {
 			// point contains in this node
 			return node;
 		}
