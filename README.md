@@ -14,29 +14,44 @@ QuadTree supports following operations:
 
 ## Install
 
+### 1. Clone repo with SFML
+
 ```bash
-# 1. clone repo with sfml
 git clone https://github.com/Roout/quad-tree.git
+cd quad-tree/external
 git submodule init SFML
 git submodule update
+```
 
-# 2. configure and generate sfml project with output directory `external/build` with CMake
-# by providing generator with enabled shared library flag
+### 2. Build SFML
 
-# 3. build sfml with `make`
-cd external/build
-make # nmake
+- Configure and generate SFML project with cmake gui or command line tool.
+- Set up output directory: `external/build`
+- Enable `-DBUILD_SHARED_LIBS=ON -DSFML_BUILD_GRAPHICS=ON -DSFML_BUILD_WINDOW=ON`
+- Build SFML with `make`, `nmake` withing the `external/build` directory
 
-# 4. build quad-tree target
-cd ../.. # go to project root 
-cmake -DCMAKE_BUILD_TYPE=Release ..
-cmake --build .
+### 3. Build quad-tree target
+
+- Note, that you should use same CMAKE_CXX_COMPILER as used for SFML build
+- 
+```bash
+# go to project root 
+cd ../.. 
+# create build folder
+mkdir build
+cd build
+# configure and generate quad-tree project with cmake gui or cmake command line tool
+# using same compiler
+...
+# use make or nmake in build directory
+make 
 ```
 
 ## Prerequisites
 
-> - SFML 2.5.1 (older ones can be used too so just set up dependencies and libraries)
+> - SFML 2.5
 > - c++17
+> - CMake 3.15
 
 ## Controls
 
