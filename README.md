@@ -33,7 +33,7 @@ git submodule update
 ### 3. Build quad-tree target
 
 - Note, that you should use same CMAKE_CXX_COMPILER as used for SFML build
-- 
+
 ```bash
 # go to project root 
 cd ../.. 
