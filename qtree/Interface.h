@@ -24,6 +24,7 @@ namespace mercury {
 		tree::QuadTree* const m_tree{ nullptr };
 		sf::Font m_font;
 		sf::Text m_header;
+		sf::Text m_mouse;
 		sf::Text m_space;
 		sf::Text m_flush;
 		sf::Text m_vertCount;

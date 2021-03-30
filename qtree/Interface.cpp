@@ -26,7 +26,7 @@ namespace mercury {
 			return;
 		}
 
-		const sf::Vector2f margin{ 25.f, 25.f };
+		const sf::Vector2f margin{ 10.f, 25.f };
 		const float verticalSpacing{ 10.f };
 		const size_t charSize{ 18U };
 		// add header
@@ -36,16 +36,22 @@ namespace mercury {
 		m_header.setCharacterSize(charSize);
 		m_header.setPosition(margin + sf::Vector2f{ 0.f, static_cast<float>(charSize) });
 
+		m_mouse.setFont(m_font);
+		m_mouse.setFillColor(sf::Color::White);
+		m_mouse.setString("Select area: MOUSE");
+		m_mouse.setCharacterSize(charSize);
+		m_mouse.setPosition(m_header.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
+		
 		// add info about the controls
 		m_space.setFont(m_font);
 		m_space.setFillColor(sf::Color::White);
 		m_space.setString("Insert point: SPACE");
 		m_space.setCharacterSize(charSize);
-		m_space.setPosition(m_header.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
-		
+		m_space.setPosition(m_mouse.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
+
 		m_flush.setFont(m_font);
 		m_flush.setFillColor(sf::Color::White);
-		m_flush.setString("Clear whole tree: F");
+		m_flush.setString("Clear selected points: F");
 		m_flush.setCharacterSize(charSize);
 		m_flush.setPosition(m_space.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
 
@@ -60,6 +66,7 @@ namespace mercury {
 
 	void Description::OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {
 		target.draw(m_header, states);
+		target.draw(m_mouse, states);
 		target.draw(m_space, states);
 		target.draw(m_flush, states);
 		target.draw(m_vertCount, states);
