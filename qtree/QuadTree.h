@@ -5,7 +5,6 @@
 #include <vector>
 #include <functional>
 #include <optional>
-#include <cassert>
 
 namespace tree {
 
@@ -17,47 +16,6 @@ namespace tree {
 	 */
 	enum Cardinals { NW = 0, NE, SW, SE, COUNT };
 
-	/**
-	 * Get quarter base where the point belongs base on following SFML coordinate system:
-	 * (0, 0) ----------- (W, 0)
-	 * ...
-	 * ...
- 	 * (0, H) ----------- (W, H)
-	 */
-	constexpr Cardinals GetQuarter(const mt::Pt& point, const mt::Rect& box) noexcept {
-		Cardinals cardinal = Cardinals::NE;
-		if (point.x >= box.GetMidX()) { // EAST
-			cardinal = point.y >= box.GetMidY() ? Cardinals::SE : Cardinals::NE;
-		}
-		else { // WEST
-			cardinal = point.y >= box.GetMidY() ? Cardinals::SW : Cardinals::NW;
-		}
-		return cardinal;
-	}
-
-	/**
-	 * Form rectangle from quarter on following SFML coordinate system:
-	 * (0, 0) ----------- (W, 0)
-	 * ...
-	 * ...
-	 * (0, H) ----------- (W, H)
-	 */
-	constexpr mt::Rect GetRect(Cardinals cardinal, const mt::Rect& box) noexcept {
-		switch (cardinal) {
-		case Cardinals::NE:
-			return { box.GetMidX(), box.GetMinY(), box.size.width / 2.f, box.size.height / 2.f };
-		case Cardinals::SE:
-			return { box.GetMidX(), box.GetMidY(), box.size.width / 2.f, box.size.height / 2.f };
-		case Cardinals::NW:
-			return { box.GetMinX(), box.GetMinY(), box.size.width / 2.f, box.size.height / 2.f };
-		case Cardinals::SW:
-			return { box.GetMinX(), box.GetMidY(), box.size.width / 2.f, box.size.height / 2.f };
-		default: assert(false && "Can't fallthrough here!");  break;
-		}
-
-		return box;
-	}
-
 	struct Node {
 		static constexpr size_t MAX_POINTS{ 2 };
 
@@ -67,6 +25,10 @@ namespace tree {
 		mt::Rect m_box{ {0.f, 0.f}, {0.f, 0.f} };
 	};
 
+	/**
+	 * @note this tree won't create a node for the forth quarter 
+	 * until number of points there won't be greater than Node::MAX_POINTS
+	 */
 	class QuadTree {
 	public:
 
@@ -86,6 +48,12 @@ namespace tree {
 
 		void Insert(const mt::Pt& point);
 
+		bool Find(const mt::Pt& point) const;
+
+		/**
+		* Erase point from the tree.
+		* On successfull erasure trying to merge child nodes with parent node if possible
+		*/
 		void Erase(const mt::Pt& point);
 
 		void PostOrderVisit(const Visitor_t& func);
@@ -100,6 +68,8 @@ namespace tree {
 		void Clear();
 
 	private:
+
+		void Erase(Node*& node, Node*& parent, const mt::Pt& point);
 
 		// apply func each node while traversing tree
 		void PostOrderVisit(Node*& node, const Visitor_t& func);

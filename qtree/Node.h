@@ -36,12 +36,17 @@ namespace mercury {
 
 		virtual void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {};
 
+		bool Contains(const sf::Vector2f& point) {
+			return sf::FloatRect(this->getPosition(), m_size).contains(point);
+		}
+
 	protected:
 
 		std::function<bool(const sf::Event&)> m_listener;
 
 		Node *m_parent{ nullptr };
 		std::vector<Node*> m_children;
+		sf::Vector2f m_size;
 	};
 
 	inline void Node::AddEventListener(std::function<bool(const sf::Event&)> listener) {

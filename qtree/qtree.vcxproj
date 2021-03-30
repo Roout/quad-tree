@@ -156,8 +156,8 @@
     <ClCompile Include="QuadTreeLayout.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\README.md" />
     <None Include=".gitignore" />
-    <None Include="README.md" />
   </ItemGroup>
   <ItemGroup>
     <Font Include="assets\TimesNewRomans.ttf" />
