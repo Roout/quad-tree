@@ -85,6 +85,15 @@ namespace mercury {
 						m_mouse.reset();
 					}
 				} break;
+				case sf::Event::KeyPressed: {
+					// insert point
+					if (event.key.code == sf::Keyboard::F) {
+						for (auto&point : m_selectedPoints) {
+							m_tree->Erase(point);
+						}
+						m_selectedPoints.clear();
+					}
+				} break;
 				default: break;
 			}
 			return false;
