@@ -57,6 +57,6 @@ make
 
 The controls are described in the applications:
 
-- Insert point into the tree: press **SPACE**
+- Insert point into the tree: press right button of **MOUSE**
 - Select one or more points from the workspace: use **MOUSE** (press left button and drag)
 - Erase selected points: select points and press **F**
