@@ -46,10 +46,10 @@ namespace tree {
 		return box;
 	}
 
-	static bool IsLeaf(const Node *node) noexcept {
+	static bool IsLeaf(const Node::pointer& node) noexcept {
 		return std::all_of(
 			node->m_children.cbegin(), node->m_children.cend(),
-			[](const Node* node) {
+			[](const Node::pointer& node) {
 				return node == nullptr;
 			}
 		);
@@ -58,40 +58,29 @@ namespace tree {
 	/**
 	* Trying to get rid of the child node (leaf) transfering it's data to parent beforehand
 	*/
-	static void TryMerge(Node *&child, Node *&parent) noexcept {
+	static void TryMerge(Node::pointer& child, Node::pointer& parent) noexcept {
 		assert(parent != child && "Can't merge root");
 		assert(IsLeaf(child) && "Trying to merge non-leaf node");
 
 		if (child->m_data.size() + parent->m_data.size() <= Node::MAX_POINTS) {
 			parent->m_data.insert(parent->m_data.end(), child->m_data.cbegin(), child->m_data.cend());
-			delete child;
-			child = nullptr;
+			child.reset();
 		}
 
 	}
 
 	QuadTree::QuadTree(const mt::Rect& fullArea)
-		: m_root{ new Node {} }
+		: m_root{ std::make_unique<Node>() }
 		, m_size{ 0 }
 	{
 		m_root->m_box = fullArea;
-	}
-
-	QuadTree::~QuadTree() {
-		this->Clear();
-		delete m_root;
 	}
 
 	void QuadTree::Clear() {
 		// clean up everything except the root
 		m_root->m_data.clear();
 		for (auto&& child : m_root->m_children) {
-			if (child) {
-				this->PostOrderVisit(child, [](Node*& node) {
-					delete node;
-					node = nullptr;
-				});
-			}
+			child.reset();
 		}
 		m_size = 0;
 	}
@@ -107,7 +96,7 @@ namespace tree {
 		std::vector<mt::Pt> points;
 
 		std::queue<Node*> processed;
-		processed.push(m_root);
+		processed.push(m_root.get());
 
 		while (!processed.empty()) {
 			auto current = processed.front();
@@ -119,9 +108,9 @@ namespace tree {
 				}
 			}
 
-			for (auto quarter : current->m_children) {
+			for (const auto& quarter : current->m_children) {
 				if (quarter && quarter->m_box.Intersect(area)) {
-					processed.push(quarter);
+					processed.push(quarter.get());
 				}
 			}
 		}
@@ -142,8 +131,8 @@ namespace tree {
 		}
 	}
 
-	bool QuadTree::Find(const mt::Pt & point) const {
-		return this->Find(m_root, point);
+	bool QuadTree::Contains(const mt::Pt & point) const {
+		return this->Contains(m_root, point);
 	}
 
 	void QuadTree::Erase(const mt::Pt& point) {
@@ -160,7 +149,7 @@ namespace tree {
 		this->PreOrderVisit(m_root, func);
 	}
 
-	void QuadTree::Erase(Node *& node, Node *& parent, const mt::Pt & point) {
+	void QuadTree::Erase(Node::pointer& node, Node::pointer& parent, const mt::Pt& point) {
 		// point is outside the boundary
 		if (!node->m_box.Contains(point)) {
 			return;
@@ -206,7 +195,7 @@ namespace tree {
 	}
 
 	// apply func each node while traversing tree
-	void QuadTree::PostOrderVisit(Node*& node, const Visitor_t& func) {
+	void QuadTree::PostOrderVisit(Node::pointer& node, const Visitor_t& func) {
 		for (auto& child : node->m_children) {
 			if (child != nullptr) {
 				this->PostOrderVisit(child, func);
@@ -215,7 +204,7 @@ namespace tree {
 		std::invoke(func, node);
 	}
 
-	void QuadTree::PreOrderVisit(Node*& node, const Visitor_t& func) {
+	void QuadTree::PreOrderVisit(Node::pointer& node, const Visitor_t& func) {
 		for (auto& child : node->m_children) {
 			if (child != nullptr) {
 				std::invoke(func, node);
@@ -226,28 +215,28 @@ namespace tree {
 
 	// Find the point in the node
 	// return nullptr if it doesn't exist
-	Node * QuadTree::Find(Node * node, const mt::Pt& point) const noexcept {
+	bool QuadTree::Contains(const Node::pointer& node, const mt::Pt& point) const noexcept {
 		// point is outside the boundary
 		if (!node->m_box.Contains(point)) {
-			return nullptr;
+			return false;
 		}
 
 		// find a needed quarter
 		const auto cardinal = GetQuarter(point, node->m_box);
-		if (auto child = node->m_children[cardinal]; child != nullptr) {
-			return this->Find(child, point);
+		if (const auto& child = node->m_children[cardinal]; child != nullptr) {
+			return this->Contains(child, point);
 		}
 		else if (auto it = std::find(node->m_data.cbegin(), node->m_data.cend(), point);
 			it != node->m_data.cend()
 		) {
-			// point contains in this node
-			return node;
+			// point is in this node
+			return true;
 		}
-		return nullptr;
+		return false;
 	}
 
 	// Insert `point` into the `node`
-	bool QuadTree::Insert(Node * node, const mt::Pt& point) {
+	bool QuadTree::Insert(const Node::pointer& node, const mt::Pt& point) {
 		// TODO: maybe remove this check?
 		// point is outside the boundary
 		if (!node->m_box.Contains(point)) {
@@ -269,7 +258,7 @@ namespace tree {
 			return true;
 		}
 		else {
-			child = new Node{};
+			child = std::make_unique<Node>();
 			child->m_box = GetRect(cardinal, node->m_box);
 
 			// move points which have same quarter to this child node

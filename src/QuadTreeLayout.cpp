@@ -102,7 +102,7 @@ namespace mercury {
 	}
 
 	void QuadTreeLayout::AddTree() {
-		m_tree->PostOrderVisit([this](tree::Node* node) {
+		m_tree->PostOrderVisit([this](tree::Node::pointer& node) {
 			// add quad shape:
 			sf::RectangleShape shape;
 			shape.setFillColor(sf::Color::Transparent);

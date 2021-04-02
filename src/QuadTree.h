@@ -5,6 +5,9 @@
 #include <vector>
 #include <functional>
 #include <optional>
+#include <memory>
+
+#include <iostream>
 
 namespace tree {
 
@@ -17,9 +20,11 @@ namespace tree {
 	enum Cardinals { NW = 0, NE, SW, SE, COUNT };
 
 	struct Node {
+		using pointer = std::unique_ptr<Node>;
+
 		static constexpr size_t MAX_POINTS{ 2 };
 
-		std::array<Node*, Cardinals::COUNT> m_children{ nullptr };
+		std::array<pointer, Cardinals::COUNT> m_children{ nullptr };
 		// TODO: rewrite to std::array
 		std::vector<mt::Pt> m_data;
 		mt::Rect m_box{ {0.f, 0.f}, {0.f, 0.f} };
@@ -32,11 +37,11 @@ namespace tree {
 	class QuadTree {
 	public:
 
-		using Visitor_t = std::function<void(Node*&)>;
+		using Visitor_t = std::function<void(Node::pointer&)>;
 
 		QuadTree(const mt::Rect& fullArea);
 
-		~QuadTree();
+		~QuadTree() = default;
 
 		void Build(const std::vector<mt::Pt>& points);
 
@@ -48,7 +53,7 @@ namespace tree {
 
 		void Insert(const mt::Pt& point);
 
-		bool Find(const mt::Pt& point) const;
+		bool Contains(const mt::Pt& point) const;
 
 		/**
 		* Erase point from the tree.
@@ -69,22 +74,21 @@ namespace tree {
 
 	private:
 
-		void Erase(Node*& node, Node*& parent, const mt::Pt& point);
+		void Erase(Node::pointer& node, Node::pointer& parent, const mt::Pt& point);
 
 		// apply func each node while traversing tree
-		void PostOrderVisit(Node*& node, const Visitor_t& func);
+		void PostOrderVisit(Node::pointer& node, const Visitor_t& func);
 
-		void PreOrderVisit(Node*& node, const Visitor_t& func);
+		void PreOrderVisit(Node::pointer& node, const Visitor_t& func);
 
 		// Find the point in the node
-		// return nullptr if it doesn't exist
-		Node * Find(Node * node, const mt::Pt& point) const noexcept;
+		bool Contains(const Node::pointer& node, const mt::Pt& point) const noexcept;
 
 		// Insert `point` into the `node`
-		bool Insert(Node * node, const mt::Pt& point);
+		bool Insert(const Node::pointer& node, const mt::Pt& point);
 
 	private:
-		Node * m_root{ nullptr };
+		Node::pointer m_root{ nullptr };
 		// number of vertices in the tree
 		size_t m_size{ 0 };
 	};
