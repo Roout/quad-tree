@@ -3,7 +3,7 @@
 #include "MainScene.h"
 
 int main() {
-	sf::RenderWindow window(sf::VideoMode(800, 600), "Quad Tree");	
+	sf::RenderWindow window(sf::VideoMode(850, 600), "Quad Tree", sf::Style::Titlebar | sf::Style::Close);	
 	mercury::MainScene scene{ &window };
 	sf::Clock clock;
 	clock.restart();
@@ -19,7 +19,6 @@ int main() {
 		}
 		sf::Time elapsed = clock.restart();
 		scene.Update(elapsed.asSeconds());
-		// sf::Vector2i mouse = sf::Mouse::getPosition(window);
 		window.clear();
 		window.draw(scene);
 		window.display();

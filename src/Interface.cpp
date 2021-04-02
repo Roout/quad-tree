@@ -38,14 +38,14 @@ namespace mercury {
 
 		m_mouse.setFont(m_font);
 		m_mouse.setFillColor(sf::Color::White);
-		m_mouse.setString("Select area: MOUSE");
+		m_mouse.setString("Select area: LEFT MOUSE");
 		m_mouse.setCharacterSize(charSize);
 		m_mouse.setPosition(m_header.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
 		
 		// add info about the controls
 		m_space.setFont(m_font);
 		m_space.setFillColor(sf::Color::White);
-		m_space.setString("Insert point: SPACE");
+		m_space.setString("Insert point: RIGHT MOUSE");
 		m_space.setCharacterSize(charSize);
 		m_space.setPosition(m_mouse.getPosition() + sf::Vector2f{ 0.f, verticalSpacing + static_cast<float>(charSize) });
 
