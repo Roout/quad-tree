@@ -1,4 +1,4 @@
-external/build/
+external/*-build/
 build/
 .vs/
 .vscode/

@@ -1,0 +1,5 @@
+set(SFML_BUILD_GRAPHICS TRUE CACHE BOOL "build graphic module")
+set(SFML_BUILD_WINDOW 	TRUE CACHE BOOL "build window module")
+set(SFML_BUILD_AUDIO    TRUE CACHE BOOL "build audio module")
+set(SFML_BUILD_NETWORK 	TRUE CACHE BOOL "build network module")
+set(BUILD_SHARED_LIBS 	TRUE CACHE BOOL "build shared libraries")
