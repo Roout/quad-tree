@@ -119,7 +119,7 @@ namespace tree {
 	}
 
 	// return the closest neighbour point or nullopt if no points present
-	std::optional<mt::Pt> QuadTree::FindClosest(const mt::Pt& point) const noexcept {
+	std::optional<mt::Pt> QuadTree::FindClosest(const mt::Pt&) const noexcept {
 		// TODO: implement
 		assert(false && "Not implemented");
 		return std::nullopt;

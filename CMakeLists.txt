@@ -32,11 +32,11 @@ add_executable(${This} ${sources} ${headers})
 
 target_link_libraries(${This} sfml-graphics sfml-window sfml-system)
 
-# target_compile_options(${This} PRIVATE
-#     $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:Clang>:-Wall -Werror -Wextra>>
-#     $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:GNU>:-Wall -Werror -Wextra>>
-#     $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:MSVC>:/W3>>
-# )
+target_compile_options(${This} PRIVATE
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:Clang>:-Wall -Werror -Wextra>>
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:GNU>:-Wall -Werror -Wextra>>
+    $<$<COMPILE_LANGUAGE:CXX>:$<$<CXX_COMPILER_ID:MSVC>:/W3>>
+)
 
 add_custom_command(
         TARGET ${This} POST_BUILD

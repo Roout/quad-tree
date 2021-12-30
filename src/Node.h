@@ -34,10 +34,11 @@ namespace mercury {
 
 	protected:
 
-		virtual void OnDraw(sf::RenderTarget& target, const sf::RenderStates& states) const {};
+		virtual void OnDraw([[maybe_unused]] sf::RenderTarget& target
+			, [[maybe_unused]] const sf::RenderStates& states) const {};
 
 		bool Contains(const sf::Vector2f& point) {
-			return sf::FloatRect(this->getPosition(), m_size).contains(point);
+			return sf::FloatRect(getPosition(), m_size).contains(point);
 		}
 
 	protected:
