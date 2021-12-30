@@ -16,8 +16,8 @@ QuadTree supports following operations:
 
 ```bash
 # clone repo with submodules
-git clone --recurse-submodules git@github.com:Roout/headoops.git headoops
-cd headoops/external
+git clone --recurse-submodules git@github.com:Roout/quad-tree.git quad-tree
+cd quad-tree/external
 
 # build SFML submodule with cached values
 mkdir SFML-build && cd SFML-build
