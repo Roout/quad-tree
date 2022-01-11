@@ -24,6 +24,7 @@ jobs:
     
     - name: Install dependencies required for SFML
       run: |
+        sudo apt update
         sudo apt-get install libgl1-mesa-dev
         sudo apt install libfreetype6-dev libxrandr-dev libudev-dev libogg-dev libflac-dev libvorbis-dev libopenal-dev libxcursor-dev
     
