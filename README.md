@@ -16,22 +16,11 @@ QuadTree supports following operations:
 
 ```bash
 # clone repo with submodules
-git clone --recurse-submodules git@github.com:Roout/headoops.git headoops
-cd headoops/external
-
-# build SFML submodule with cached values
-mkdir SFML-build && cd SFML-build
-# you also may specify generator with -G "..." option
-cmake -C ../CMakeCache.txt ../SFML
-cmake --build . --config Release
-
-# go back to the project root
-cd ../.. 
-# build the whole project
+git clone --recurse-submodules git@github.com:Roout/quad-tree.git quadtree
 mkdir build && cd build
 # configure
 # you also may specify generator with -G "..." option
-cmake ..
+cmake ../quadtree
 # build
 cmake --build . --config Release
 ```
@@ -40,7 +29,7 @@ cmake --build . --config Release
 
 > - SFML 2.5
 > - c++17
-> - CMake 3.15
+> - CMake 3.17
 
 ## Controls
 
