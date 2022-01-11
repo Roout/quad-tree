@@ -6,10 +6,6 @@ project(${This} VERSION 0.1.0)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SFML_DIR "${CMAKE_SOURCE_DIR}/external/SFML-build")
-
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-
 set(QUADTREE_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/src")
 
 set(sources
@@ -46,8 +42,8 @@ add_custom_command(
     COMMAND ${CMAKE_COMMAND} -E copy_directory   
             ${CMAKE_SOURCE_DIR}/assets
             $<TARGET_FILE_DIR:${This}>/assets
-    COMMAND echo "Copying libs..."
+    COMMAND echo "Copying shared libs..."
     COMMAND ${CMAKE_COMMAND} -E copy_directory   
-            ${CMAKE_SOURCE_DIR}/external/SFML-build/lib
+            ${CMAKE_BINARY_DIR}/external/SFML/lib
             $<TARGET_FILE_DIR:${This}>
 )
