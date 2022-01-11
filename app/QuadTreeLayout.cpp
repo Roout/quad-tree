@@ -7,7 +7,7 @@ namespace mercury {
 		: m_tree{ tree }
 	{
 		this->Init();
-	};
+	}
 
 	QuadTreeLayout::~QuadTreeLayout() {
 		for (auto& child : m_children) {
