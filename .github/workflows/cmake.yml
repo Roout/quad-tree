@@ -21,21 +21,15 @@ jobs:
     - uses: actions/checkout@v2
       with: 
         submodules: 'recursive'
+    
     - name: Install dependencies required for SFML
       run: |
         sudo apt-get install libgl1-mesa-dev
         sudo apt install libfreetype6-dev libxrandr-dev libudev-dev libogg-dev libflac-dev libvorbis-dev libopenal-dev libxcursor-dev
-    - name: Configure SFML CMake
-      run: |
-        ls -l
-        cd external/
-        mkdir SFML-build && cd SFML-build
-        cmake -C ../CMakeCache.txt ../SFML
-        cmake --build . --config Release
-        
-    - name: Configure Root Project CMake
+    
+    - name: Configure CMake Project
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-    - name: Build
+    
+    - name: Build Project
       # Build your program with the given configuration
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}      
